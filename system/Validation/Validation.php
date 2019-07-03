@@ -294,7 +294,7 @@ class Validation implements ValidationInterface
 
 				// if the $value is an array, convert it to as string representation
 				if(is_array($value)){
-					$value = "[". implode($value, ', ') . "]";
+					$value = "[". implode(', ', $value) . "]";
 				}
 
 				$this->errors[$field] = is_null($error) ? $this->getErrorMessage($rule, $field, $label, $param, $value)
