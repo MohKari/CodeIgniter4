@@ -291,15 +291,8 @@ class Validation implements ValidationInterface
 			// Set the error message if we didn't survive.
 			if ($passed === false)
 			{
-
-				// if the $value is an array, convert it to a string representation
-				if(is_array($value)){
-					$value = "[". implode(', ', $value) . "]";
-				}
-
 				$this->errors[$field] = is_null($error) ? $this->getErrorMessage($rule, $field, $label, $param, $value)
 					: $error;
-
 
 				return false;
 			}
