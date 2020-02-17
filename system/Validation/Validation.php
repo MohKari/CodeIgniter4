@@ -208,11 +208,11 @@ class Validation implements ValidationInterface
 	 * the error to $this->errors and moves on to the next,
 	 * so that we can collect all of the first errors.
 	 *
-	 * @param string      $field
-	 * @param string|null $label
-	 * @param string      $value
-	 * @param array|null  $rules
-	 * @param array       $data  // All of the fields to check.
+	 * @param string       $field
+	 * @param string|null  $label
+	 * @param string|array $value Value to be validated, can be a string or an array
+	 * @param array|null   $rules
+	 * @param array        $data  // All of the fields to check.
 	 *
 	 * @return boolean
 	 */
@@ -291,10 +291,10 @@ class Validation implements ValidationInterface
 			// Set the error message if we didn't survive.
 			if ($passed === false)
 			{
-
 				// if the $value is an array, convert it to as string representation
-				if(is_array($value)){
-					$value = "[". implode(', ', $value) . "]";
+				if (is_array($value))
+				{
+					$value = '[' . implode(', ', $value) . ']';
 				}
 
 				$this->errors[$field] = is_null($error) ? $this->getErrorMessage($rule, $field, $label, $param, $value)
