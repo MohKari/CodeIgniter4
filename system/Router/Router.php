@@ -8,6 +8,7 @@
  * This content is released under the MIT License (MIT)
  *
  * Copyright (c) 2014-2019 British Columbia Institute of Technology
+ * Copyright (c) 2019-2020 CodeIgniter Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +30,7 @@
  *
  * @package    CodeIgniter
  * @author     CodeIgniter Dev Team
- * @copyright  2014-2019 British Columbia Institute of Technology (https://bcit.ca/)
+ * @copyright  2019-2020 CodeIgniter Foundation
  * @license    https://opensource.org/licenses/MIT	MIT License
  * @link       https://codeigniter.com
  * @since      Version 4.0.0
@@ -38,6 +39,7 @@
 
 namespace CodeIgniter\Router;
 
+use CodeIgniter\HTTP\Request;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\Router\Exceptions\RedirectException;
 use CodeIgniter\Router\Exceptions\RouterException;
@@ -135,13 +137,16 @@ class Router implements RouterInterface
 	 * Stores a reference to the RouteCollection object.
 	 *
 	 * @param RouteCollectionInterface $routes
+	 * @param Request                  $request
 	 */
-	public function __construct(RouteCollectionInterface $routes)
+	public function __construct(RouteCollectionInterface $routes, Request $request = null)
 	{
 		$this->collection = $routes;
 
 		$this->controller = $this->collection->getDefaultController();
 		$this->method     = $this->collection->getDefaultMethod();
+
+		$this->collection->setHTTPVerb($request->getMethod() ?? strtolower($_SERVER['REQUEST_METHOD']));
 	}
 
 	//--------------------------------------------------------------------
@@ -419,6 +424,11 @@ class Router implements RouterInterface
 			// Does the RegEx match?
 			if (preg_match('#^' . $key . '$#', $uri, $matches))
 			{
+				// Is this route supposed to redirect to another?
+				if ($this->collection->isRedirect($key))
+				{
+					throw new RedirectException(key($val), $this->collection->getRedirectCode($key));
+				}
 				// Store our locale so CodeIgniter object can
 				// assign it to the Request.
 				if (isset($localeSegment))
@@ -475,12 +485,6 @@ class Router implements RouterInterface
 					$controller = str_replace('/', '\\', $controller);
 
 					$val = $controller . '::' . $method;
-				}
-
-				// Is this route supposed to redirect to another?
-				if ($this->collection->isRedirect($key))
-				{
-					throw RedirectException::forUnableToRedirect($val, $this->collection->getRedirectCode($key));
 				}
 
 				$this->setRequest(explode('/', $val));
@@ -564,7 +568,9 @@ class Router implements RouterInterface
 	 */
 	protected function validateRequest(array $segments): array
 	{
-		$segments = array_filter($segments);
+		$segments = array_filter($segments, function ($segment) {
+			return ! empty($segment) || ($segment !== '0' || $segment !== 0);
+		});
 		$segments = array_values($segments);
 
 		$c                  = count($segments);
@@ -572,10 +578,9 @@ class Router implements RouterInterface
 
 		// Loop through our segments and return as soon as a controller
 		// is found or when such a directory doesn't exist
-		while ($c -- > 0)
+		while ($c-- > 0)
 		{
-			$test = $this->directory . ucfirst($this->translateURIDashes === true ? str_replace('-', '_', $segments[0]) : $segments[0]
-			);
+			$test = $this->directory . ucfirst($this->translateURIDashes === true ? str_replace('-', '_', $segments[0]) : $segments[0]);
 
 			if (! is_file(APPPATH . 'Controllers/' . $test . '.php') && $directory_override === false && is_dir(APPPATH . 'Controllers/' . $this->directory . ucfirst($segments[0])))
 			{
@@ -600,6 +605,11 @@ class Router implements RouterInterface
 	 */
 	protected function setDirectory(string $dir = null, bool $append = false)
 	{
+		if (empty($dir))
+		{
+			return;
+		}
+
 		$dir = ucfirst($dir);
 
 		if ($append !== true || empty($this->directory))

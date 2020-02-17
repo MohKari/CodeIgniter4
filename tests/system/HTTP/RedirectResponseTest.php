@@ -3,6 +3,7 @@
 namespace CodeIgniter\HTTP;
 
 use Config\App;
+use CodeIgniter\Config\Config;
 use CodeIgniter\Config\Services;
 use CodeIgniter\Validation\Validation;
 use CodeIgniter\Router\RouteCollection;
@@ -18,7 +19,7 @@ class RedirectResponseTest extends \CIUnitTestCase
 	protected $request;
 	protected $config;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -57,14 +58,14 @@ class RedirectResponseTest extends \CIUnitTestCase
 		$response->route('exampleRoute');
 
 		$this->assertTrue($response->hasHeader('Location'));
-		$this->assertEquals('http://example.com/exampleRoute', $response->getHeaderLine('Location'));
+		$this->assertEquals('http://example.com/index.php/exampleRoute', $response->getHeaderLine('Location'));
 
 		$this->routes->add('exampleRoute', 'Home::index', ['as' => 'home']);
 
 		$response->route('home');
 
 		$this->assertTrue($response->hasHeader('Location'));
-		$this->assertEquals('http://example.com/exampleRoute', $response->getHeaderLine('Location'));
+		$this->assertEquals('http://example.com/index.php/exampleRoute', $response->getHeaderLine('Location'));
 	}
 
 	public function testRedirectRouteBad()
@@ -186,4 +187,30 @@ class RedirectResponseTest extends \CIUnitTestCase
 		$this->assertSame($response, $returned);
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState  disabled
+	 *
+	 * @see https://github.com/codeigniter4/CodeIgniter4/issues/2119
+	 */
+	public function testRedirectRouteBaseUrl()
+	{
+		$config          = new App();
+		$config->baseURL = 'http://example.com/test/';
+		Config::injectMock('App', $config);
+
+		$request = new MockIncomingRequest($config, new URI('http://example.com/test/'), null, new UserAgent());
+		Services::injectMock('request', $request);
+
+		$response = new RedirectResponse(new App());
+
+		$this->routes->add('exampleRoute', 'Home::index');
+
+		$response->route('exampleRoute');
+
+		$this->assertTrue($response->hasHeader('Location'));
+		$this->assertEquals('http://example.com/test/index.php/exampleRoute', $response->getHeaderLine('Location'));
+
+		Config::reset();
+	}
 }

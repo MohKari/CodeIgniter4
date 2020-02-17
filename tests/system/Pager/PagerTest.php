@@ -1,6 +1,8 @@
 <?php namespace CodeIgniter\Pager;
 
+use CodeIgniter\HTTP\URI;
 use CodeIgniter\Pager\Exceptions\PagerException;
+use Config\App;
 use Config\Pager;
 use Config\Services;
 
@@ -16,16 +18,25 @@ class PagerTest extends \CIUnitTestCase
 	protected $pager;
 	protected $config;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
-
 		helper('url');
 
-		$_SERVER['HTTP_HOST'] = 'example.com';
-		$_GET                 = [];
-		$this->config         = new Pager();
-		$this->pager          = new \CodeIgniter\Pager\Pager($this->config, Services::renderer());
+		$_SERVER['HTTP_HOST']   = 'example.com';
+		$_SERVER['REQUEST_URI'] = '/';
+		$_GET                   = [];
+
+		$config          = new App();
+		$config->baseURL = 'http://example.com/';
+		$request         = Services::request($config);
+		$request->uri    = new URI('http://example.com');
+
+		Services::injectMock('request', $request);
+
+		$_GET         = [];
+		$this->config = new Pager();
+		$this->pager  = new \CodeIgniter\Pager\Pager($this->config, Services::renderer());
 	}
 
 	public function testSetPathRemembersPath()
@@ -192,12 +203,12 @@ class PagerTest extends \CIUnitTestCase
 
 	public function testGetNextURIUsesCurrentURI()
 	{
-		$_GET['page'] = 2;
+		$_GET['page_foo'] = 2;
 
 		$this->pager->store('foo', 2, 12, 70);
 
 		$expected = current_url(true);
-		$expected = (string)$expected->setQuery('page=3');
+		$expected = (string)$expected->setQuery('page_foo=3');
 
 		$this->assertEquals((string)$expected, $this->pager->getNextPageURI('foo'));
 	}
@@ -214,19 +225,19 @@ class PagerTest extends \CIUnitTestCase
 		$this->pager->store('foo', 1, 12, 70);
 
 		$expected = current_url(true);
-		$expected = (string)$expected->setQuery('page=2');
+		$expected = (string)$expected->setQuery('page_foo=2');
 
 		$this->assertEquals($expected, $this->pager->getNextPageURI('foo'));
 	}
 
 	public function testGetPreviousURIUsesCurrentURI()
 	{
-		$_GET['page'] = 2;
+		$_GET['page_foo'] = 2;
 
 		$this->pager->store('foo', 2, 12, 70);
 
 		$expected = current_url(true);
-		$expected = (string)$expected->setQuery('page=1');
+		$expected = (string)$expected->setQuery('page_foo=1');
 
 		$this->assertEquals((string)$expected, $this->pager->getPreviousPageURI('foo'));
 	}
@@ -241,14 +252,14 @@ class PagerTest extends \CIUnitTestCase
 	public function testGetNextURIWithQueryStringUsesCurrentURI()
 	{
 		$_GET = [
-			'page'   => 3,
-			'status' => 1,
+			'page_foo' => 3,
+			'status'   => 1,
 		];
 
 		$expected = current_url(true);
 		$expected = (string)$expected->setQueryArray($_GET);
 
-		$this->pager->store('foo', $_GET['page'] - 1, 12, 70);
+		$this->pager->store('foo', $_GET['page_foo'] - 1, 12, 70);
 
 		$this->assertEquals((string)$expected, $this->pager->getNextPageURI('foo'));
 	}
@@ -256,13 +267,13 @@ class PagerTest extends \CIUnitTestCase
 	public function testGetPreviousURIWithQueryStringUsesCurrentURI()
 	{
 		$_GET     = [
-			'page'   => 1,
-			'status' => 1,
+			'page_foo' => 1,
+			'status'   => 1,
 		];
 		$expected = current_url(true);
 		$expected = (string)$expected->setQueryArray($_GET);
 
-		$this->pager->store('foo', $_GET['page'] + 1, 12, 70);
+		$this->pager->store('foo', $_GET['page_foo'] + 1, 12, 70);
 
 		$this->assertEquals((string)$expected, $this->pager->getPreviousPageURI('foo'));
 	}
@@ -354,4 +365,32 @@ class PagerTest extends \CIUnitTestCase
 		$this->assertContains('<link rel="canonical"', $last_page);
 		$this->assertNotContains('<link rel="next"', $last_page);
 	}
+
+	public function testBasedURI()
+	{
+		$_SERVER['HTTP_HOST']   = 'example.com';
+		$_SERVER['REQUEST_URI'] = '/ci/v4/x/y';
+		$_GET                   = [];
+
+		$config            = new App();
+		$config->baseURL   = 'http://example.com/ci/v4/';
+		$config->indexPage = 'fc.php';
+		$request           = Services::request($config);
+		$request->uri      = new URI('http://example.com/ci/v4/x/y');
+
+		Services::injectMock('request', $request);
+
+		$this->config = new Pager();
+		$this->pager  = new \CodeIgniter\Pager\Pager($this->config, Services::renderer());
+
+		$_GET['page_foo'] = 2;
+
+		$this->pager->store('foo', 2, 12, 70);
+
+		$expected = current_url(true);
+		$expected = (string)$expected->setQuery('page_foo=1');
+
+		$this->assertEquals((string)$expected, $this->pager->getPreviousPageURI('foo'));
+	}
+
 }

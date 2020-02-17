@@ -14,7 +14,7 @@ class AutoloaderTest extends \CIUnitTestCase
 
 	//--------------------------------------------------------------------
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -231,6 +231,6 @@ class AutoloaderTest extends \CIUnitTestCase
 		$this->loader->initialize($config, $moduleConfig);
 
 		$namespaces = $this->loader->getNamespace();
-		$this->assertArrayHasKey('Zend\\Escaper', $namespaces);
+		$this->assertArrayHasKey('Laminas\\Escaper', $namespaces);
 	}
 }

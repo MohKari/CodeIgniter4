@@ -11,7 +11,7 @@ class ViewTest extends \CIUnitTestCase
 
 	//--------------------------------------------------------------------
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -272,6 +272,18 @@ class ViewTest extends \CIUnitTestCase
 
 		$view->setVar('testString', 'Hello World');
 		$expected = "<p>Open</p>\n<h1>Hello World</h1>";
+
+		$this->assertContains($expected, $view->render('extend'));
+	}
+
+	public function testRenderLayoutExtendsMultipleCalls()
+	{
+		$view = new View($this->config, $this->viewsDir, $this->loader);
+
+		$view->setVar('testString', 'Hello World');
+		$expected = "<p>Open</p>\n<h1>Hello World</h1>\n<p>Hello World</p>";
+
+		$view->render('extend');
 
 		$this->assertContains($expected, $view->render('extend'));
 	}

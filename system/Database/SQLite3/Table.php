@@ -7,6 +7,7 @@
  * This content is released under the MIT License (MIT)
  *
  * Copyright (c) 2014-2019 British Columbia Institute of Technology
+ * Copyright (c) 2019-2020 CodeIgniter Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +29,7 @@
  *
  * @package    CodeIgniter
  * @author     CodeIgniter Dev Team
- * @copyright  2014-2019 British Columbia Institute of Technology (https://bcit.ca/)
+ * @copyright  2019-2020 CodeIgniter Foundation
  * @license    https://opensource.org/licenses/MIT	MIT License
  * @link       https://codeigniter.com
  * @since      Version 4.0.0
@@ -213,6 +214,40 @@ class Table
 		unset($field['name']);
 
 		$this->fields[$oldName] = $field;
+
+		return $this;
+	}
+
+	/**
+	 * Drops a foreign key from this table so that
+	 * it won't be recreated in the future.
+	 *
+	 * @param string $column
+	 *
+	 * @return \CodeIgniter\Database\SQLite3\Table
+	 */
+	public function dropForeignKey(string $column)
+	{
+		if (empty($this->foreignKeys))
+		{
+			return $this;
+		}
+
+		for ($i = 0; $i < count($this->foreignKeys); $i++)
+		{
+			if ($this->foreignKeys[$i]->table_name !== $this->tableName)
+			{
+				continue;
+			}
+
+			// The column name should be the first thing in the constraint name
+			if (strpos($this->foreignKeys[$i]->constraint_name, $column) !== 0)
+			{
+				continue;
+			}
+
+			unset($this->foreignKeys[$i]);
+		}
 
 		return $this;
 	}

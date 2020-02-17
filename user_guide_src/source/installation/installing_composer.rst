@@ -14,7 +14,7 @@ webapp,
 
 **Note**: if you are using a Git repository to store your code, or for
 collaboration with others, then the ``vendor`` folder would normally
-be "git ignored". In such a case, you will need to do a ``composer udpate``
+be "git ignored". In such a case, you will need to do a ``composer update``
 when you clone the repository to a new system.
 
 App Starter
@@ -27,12 +27,12 @@ the latest released version of the framework.
 This installation technique would suit a developer who wishes to start
 a new CodeIgniter4 based project.
 
-Installation & Setup
+Installation & Set Up
 -------------------------------------------------------
 
 In the folder above your project root::
 
-    composer create-project codeigniter4/appstarter project-root -s beta
+    composer create-project codeigniter4/appstarter project-root -s rc
 
 The command above will create a "project-root" folder.
 
@@ -46,7 +46,9 @@ trusted dependencies that we bundle, being composer-installed.
 
 A sample such installation command, using the default project-root "appstarter"::
 
-    composer create-project codeigniter4/appstarter -s beta --no-dev
+    composer create-project codeigniter4/appstarter -s rc --no-dev
+
+After installation you should follow the steps in the "Upgrading" section.
 
 Upgrading
 -------------------------------------------------------
@@ -73,7 +75,7 @@ You still need to check for ``app/Config`` changes after updating
 Structure
 -------------------------------------------------------
 
-Folders in your project after setup:
+Folders in your project after set up:
 
 - app, public, tests, writable 
 - vendor/codeigniter4/framework/system
@@ -82,7 +84,7 @@ Folders in your project after setup:
 Dev Starter
 ============================================================
 
-Installation & Setup
+Installation & Set Up
 -------------------------------------------------------
 
 The `CodeIgniter 4 dev starter <https://github.com/codeigniter4/devstarter>`_ 
@@ -138,7 +140,7 @@ You still need to check for ``app/Config`` changes after updating.
 Structure
 -------------------------------------------------------
 
-Folders in your project after setup:
+Folders in your project after set up:
 
 - app, public, tests, writable 
 - vendor/codeigniter4/codeigniter4/system
@@ -156,12 +158,12 @@ will be your document root.
 
 In your project root::
 
-    composer require codeigniter4/framework @beta
+    composer require codeigniter4/framework @rc
 
 As with the earlier two composer install methods, you can omit installing
 phpunit and its dependencies by adding the "--no-dev" argument to the "composer require" command.
 
-Setup
+Set Up
 -------------------------------------------------------
 
 Copy the app, public, tests and writable folders from ``vendor/codeigniter4/framework`` 
@@ -196,7 +198,7 @@ You still need to check for ``app/Config`` changes after updating
 Structure
 -------------------------------------------------------
 
-Folders in your project after setup:
+Folders in your project after set up:
 
 - app, public, tests, writable 
 - vendor/codeigniter4/framework/system

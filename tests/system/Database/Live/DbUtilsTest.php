@@ -123,7 +123,7 @@ class DbUtilsTest extends CIDatabaseTestCase
 	{
 		$util = (new Database())->loadUtils($this->db);
 
-		$this->setPrivateProperty($util,'optimizeTable', false);
+		$this->setPrivateProperty($util, 'optimizeTable', false);
 
 		$this->expectException(DatabaseException::class);
 		$this->expectExceptionMessage('Unsupported feature of the database platform you are using.');
@@ -155,7 +155,7 @@ class DbUtilsTest extends CIDatabaseTestCase
 	{
 		$util = (new Database())->loadUtils($this->db);
 
-		$this->setPrivateProperty($util,'optimizeTable', false);
+		$this->setPrivateProperty($util, 'optimizeTable', false);
 
 		$this->expectException(DatabaseException::class);
 		$this->expectExceptionMessage('Unsupported feature of the database platform you are using.');
@@ -180,7 +180,7 @@ class DbUtilsTest extends CIDatabaseTestCase
 	public function testUtilsCSVFromResult()
 	{
 		$data = $this->db->table('job')
-		                 ->get();
+						 ->get();
 
 		$util = (new Database())->loadUtils($this->db);
 
@@ -188,7 +188,7 @@ class DbUtilsTest extends CIDatabaseTestCase
 
 		$data = array_filter(preg_split('/(\r\n|\n|\r)/', $data));
 
-		$this->assertEquals('"1","Developer","Awesome job, but sometimes makes you bored","0","",""', $data[1]);
+		$this->assertEquals('"1","Developer","Awesome job, but sometimes makes you bored","","",""', $data[1]);
 	}
 
 	//--------------------------------------------------------------------
@@ -196,14 +196,14 @@ class DbUtilsTest extends CIDatabaseTestCase
 	public function testUtilsXMLFromResult()
 	{
 		$data = $this->db->table('job')
-		                 ->where('id', 4)
-		                 ->get();
+						 ->where('id', 4)
+						 ->get();
 
 		$util = (new Database())->loadUtils($this->db);
 
 		$data = $util->getXMLFromResult($data);
 
-		$expected = '<root><element><id>4</id><name>Musician</name><description>Only Coldplay can actually called Musician</description><deleted></deleted><created_at></created_at><updated_at></updated_at></element></root>';
+		$expected = '<root><element><id>4</id><name>Musician</name><description>Only Coldplay can actually called Musician</description><created_at></created_at><updated_at></updated_at><deleted_at></deleted_at></element></root>';
 
 		$actual = preg_replace('#\R+#', '', $data);
 		$actual = preg_replace('/[ ]{2,}|[\t]/', '', $actual);

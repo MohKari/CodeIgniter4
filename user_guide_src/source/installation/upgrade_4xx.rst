@@ -34,12 +34,13 @@ subforum for an up-to-date list!
 
 **Application Structure**
 
-- The framework still has ``app`` and ``system`` folders, with the same
+- The ``application`` folder is renamed as ``app`` and
+  the framework still has ``system`` folders, with the same
   interpretation as before
 - The framework now provides for a ``public`` folder, intended as the document
   root for your app
 - There is also a ``writable`` folder, to hold cache data, logs, and session data
-- The ``application`` folder looks very similar to that for CI3, with some
+- The ``app`` folder looks very similar to ``application`` for CI3, with some
   name changes, and some subfolders
   moved to the ``writable`` folder
 - There is no longer a nested ``application/core`` folder, as we have
@@ -100,6 +101,14 @@ subforum for an up-to-date list!
 **Helpers**
 
 - Helpers are pretty much the same as before, though some have been simplified
+
+**Events**
+
+- Hooks have been replaced by Events
+- Instead of CI3's ``$hook['post_controller_constructor']`` you now use
+ ``Events::on('post_controller_constructor', ['MyClass', 'MyFunction']);``,
+ with the namespace ``CodeIgniter\Events\Events;``
+- Events are always enabled, and are available globally
 
 **Extending the framework**
 

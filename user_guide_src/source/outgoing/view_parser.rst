@@ -67,7 +67,7 @@ What It Does
 ============
 
 The ``Parser`` class processes "PHP/HTML scripts" stored in the application's view path.
-These scripts have a ``.php`` extension, but can not contain any PHP.
+These scripts can not contain any PHP.
 
 Each view parameter (which we refer to as a pseudo-variable) triggers a substitution,
 based on the type of value you provided for it. Pseudo-variables are not
@@ -99,7 +99,9 @@ View parameters are passed to ``setData()`` as an associative
 array of data to be replaced in the template. In the above example, the
 template would contain two variables: {blog_title} and {blog_heading}
 The first parameter to ``render()`` contains the name of the :doc:`view
-file </outgoing/views>` (in this example the file would be called blog_template.php),
+file </outgoing/views>`, Where *blog_template* is the name of your view file.
+
+.. important:: If the file extension is omitted, then the views are expected to end with the .php extension.
 
 Parser Configuration Options
 ============================
@@ -425,7 +427,7 @@ The following filters are available when using the parser:
 +---------------+---------------------+--------------------------------------------------------------+-------------------------------------+
 + highlight_code+                     + Highlights code samples with HTML/CSS.                       + { v|highlight_code }                +
 +---------------+---------------------+--------------------------------------------------------------+-------------------------------------+
-+ limit_chars   + limit               + Limits the number of chracters to $limit.                    + { v|limit_chars(100) }              +
++ limit_chars   + limit               + Limits the number of characters to $limit.                   + { v|limit_chars(100) }              +
 +---------------+---------------------+--------------------------------------------------------------+-------------------------------------+
 + limit_words   + limit               + Limits the number of words to $limit.                        + { v|limit_words(20) }               +
 +---------------+---------------------+--------------------------------------------------------------+-------------------------------------+
@@ -478,7 +480,7 @@ callable::
 PHP Native functions as Filters
 -------------------------------
 
-You can easily use native php function as filters by editing **app/Config/View.php** and adding new entries to the
+You can use native php function as filters by editing **app/Config/View.php** and adding new entries to the
 ``$filters`` array.Each key is the name of the native PHP function is called by in the view, and its value is any valid native PHP
 function prefixed with::
 
@@ -520,11 +522,11 @@ The following plugins are available when using the parser:
 Plugin               Arguments                  Description                                                           			   Example
 ==================== ========================== ================================================================================== ================================================================
 current_url                                     Alias for the current_url helper function.                                         {+ current_url +}
-previous_url                                    Alias for the previous_url helper function.                           		   {+ previous_url +}
-site_url                                        Alias for the site_url helper function.                                            {+ site_url "login" +}
-mailto               email, title, attributes   Alias for the mailto helper function.                                 		   {+ mailto email=foo@example.com title="Stranger Things" +}
-safe_mailto          email, title, attributes   Alias for the safe_mailto helper function.                            		   {+ safe_mailto email=foo@example.com title="Stranger Things" +}
-lang                 language string            Alias for the lang helper function.                                    		   {+ lang number.terabyteAbbr +}
+previous_url                                    Alias for the previous_url helper function.                           		       {+ previous_url +}
+siteURL                                         Alias for the site_url helper function.                                            {+ siteURL "login" +}
+mailto               email, title, attributes   Alias for the mailto helper function.                                 		       {+ mailto email=foo@example.com title="Stranger Things" +}
+safe_mailto          email, title, attributes   Alias for the safe_mailto helper function.                            		       {+ safe_mailto email=foo@example.com title="Stranger Things" +}
+lang                 language string            Alias for the lang helper function.                                    		       {+ lang number.terabyteAbbr +}
 validation_errors    fieldname(optional)        Returns either error string for the field (if specified) or all validation errors. {+ validation_errors +} , {+ validation_errors field="email" +}
 route                route name                 Alias for the route_to helper function.                                            {+ route "login" +}
 ==================== ========================== ================================================================================== ================================================================
@@ -542,6 +544,22 @@ used within the template file. The value is any valid PHP callable, including st
 			return $str;
 		},
 	];
+
+Any closures that are being used must be defined in the config file's constructor::
+
+    class View extends \CodeIgniter\Config\View
+    {
+        public $plugins = [];
+
+        public function __construct()
+        {
+            $this->plugins['bar'] = function(array $params=[]) {
+                return $params[0] ?? '';
+            };
+
+            parent::__construct();
+        }
+    }
 
 If the callable is on its own, it is treated as a single tag, not a open/close one. It will be replaced by
 the return value from the plugin::
