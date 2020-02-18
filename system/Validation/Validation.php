@@ -689,7 +689,7 @@ class Validation implements ValidationInterface
 	 * @param string      $field
 	 * @param string|null $label
 	 * @param string      $param
-	 * @param string      $value
+	 * @param string      $value The value that caused the validation to fail.
 	 *
 	 * @return string
 	 */
