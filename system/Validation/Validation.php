@@ -208,11 +208,11 @@ class Validation implements ValidationInterface
 	 * the error to $this->errors and moves on to the next,
 	 * so that we can collect all of the first errors.
 	 *
-	 * @param string      $field
-	 * @param string|null $label
-	 * @param string      $value
-	 * @param array|null  $rules
-	 * @param array       $data  // All of the fields to check.
+	 * @param string       $field
+	 * @param string|null  $label
+	 * @param string|array $value Value to be validated, can be a string or an array
+	 * @param array|null   $rules
+	 * @param array        $data  // All of the fields to check.
 	 *
 	 * @return boolean
 	 */
@@ -291,8 +291,14 @@ class Validation implements ValidationInterface
 			// Set the error message if we didn't survive.
 			if ($passed === false)
 			{
+
+				// if the $value is an array, convert it to a string representation
+				if(is_array($value)){
+					$value = "[". implode(', ', $value) . "]";
+				}
+
 				$this->errors[$field] = is_null($error) ? $this->getErrorMessage($rule, $field, $label, $param, $value)
-					: $error;
+				: $error;
 
 				return false;
 			}
@@ -493,7 +499,7 @@ class Validation implements ValidationInterface
 		}
 
 		return $this->view->setVar('errors', $this->getErrors())
-						->render($this->config->templates[$template]);
+		->render($this->config->templates[$template]);
 	}
 
 	//--------------------------------------------------------------------
@@ -519,7 +525,7 @@ class Validation implements ValidationInterface
 		}
 
 		return $this->view->setVar('error', $this->getError($field))
-						->render($this->config->templates[$template]);
+		->render($this->config->templates[$template]);
 	}
 
 	//--------------------------------------------------------------------
@@ -720,15 +726,15 @@ class Validation implements ValidationInterface
 	{
 		$non_escape_bracket  = '((?<!\\\\)(?:\\\\\\\\)*[\[\]])';
 		$pipe_not_in_bracket = sprintf(
-				'/\|(?=(?:[^\[\]]*%s[^\[\]]*%s)*(?![^\[\]]*%s))/',
-				$non_escape_bracket,
-				$non_escape_bracket,
-				$non_escape_bracket
+			'/\|(?=(?:[^\[\]]*%s[^\[\]]*%s)*(?![^\[\]]*%s))/',
+			$non_escape_bracket,
+			$non_escape_bracket,
+			$non_escape_bracket
 		);
 
 		$_rules = preg_split(
-				$pipe_not_in_bracket,
-				$rules
+			$pipe_not_in_bracket,
+			$rules
 		);
 
 		return array_unique($_rules);
